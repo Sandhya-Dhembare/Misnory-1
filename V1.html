@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Masonry Recipes | Food & Lifestyle Blog</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background-color: #fefefe;
+      color: #1e1e1e;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    :root {
+      --primary: #62A403;
+      --hover: #457500;
+      --shadow-sm: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+      --shadow-md: 0 20px 25px -12px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s cubic-bezier(0.2, 0, 0, 0.1);
+    }
+
+    /* Sticky Transparent Header */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      padding: 1rem 5%;
+      transition: background 0.25s ease;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .site-header.scrolled {
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(0);
+      border-bottom: 1px solid #eaeaea;
+    }
+
+    .site-header.scrolled .nav-links a,
+    .site-header.scrolled .logo,
+    .site-header.scrolled .search-icon {
+      color: #1f1f1f;
+    }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo {
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: white;
+      text-decoration: none;
+    }
+
+    .logo span {
+      color: var(--primary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1.9rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-weight: 500;
+      color: white;
+      transition: var(--transition);
+    }
+
+    .nav-links a:hover {
+      color: var(--primary);
+    }
+
+    .search-icon {
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: white;
+    }
+
+    /* Hero Slider */
+    .hero-section {
+      height: 850px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      background: #111;
+    }
+
+    .slider {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .slider:active {
+      cursor: grabbing;
+    }
+
+    .slider-track {
+      display: flex;
+      height: 100%;
+      transition: transform 0.5s ease-out;
+      will-change: transform;
+    }
+
+    .slide {
+      flex: 0 0 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .slide-content {
+      position: relative;
+      z-index: 2;
+      max-width: 780px;
+      padding: 1.5rem;
+      color: white;
+    }
+
+    .slide-content h2 {
+      font-size: 4rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      background-color: var(--primary);
+      color: white;
+      padding: 0.9rem 2rem;
+      border-radius: 40px;
+      font-weight: 600;
+      text-decoration: none;
+      margin-top: 1.2rem;
+      transition: var(--transition);
+    }
+
+    .cta-btn:hover {
+      background-color: var(--hover);
+      transform: translateY(-3px);
+    }
+
+    .slider-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(6px);
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 60px;
+      cursor: pointer;
+      z-index: 10;
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .slider-btn:hover {
+      background: var(--primary);
+    }
+
+    .prev-btn { left: 2rem; }
+    .next-btn { right: 2rem; }
+
+    .dots-container {
+      position: absolute;
+      bottom: 30px;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      z-index: 10;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      background: var(--primary);
+      width: 28px;
+      border-radius: 10px;
+    }
+
+    /* Sections */
+    .section-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-title span {
+      color: var(--primary);
+    }
+
+    /* Trending Categories */
+    .categories-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 2.5rem;
+    }
+
+    .cat-card {
+      text-align: center;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .cat-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .circle-img {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Recipe grids */
+    .recipe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+    }
+
+    .recipe-card {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .recipe-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .recipe-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .recipe-card:hover .recipe-img {
+      transform: scale(1.06);
+    }
+
+    .recipe-info {
+      padding: 1.2rem;
+    }
+
+    .recipe-category {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .recipe-title {
+      font-size: 1.3rem;
+      margin: 0.5rem 0;
+      font-weight: 700;
+    }
+
+    /* Masonry Grid */
+    .masonry-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.8rem;
+    }
+
+    .blog-card {
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      transition: all 0.35s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .blog-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 35px -12px rgba(0, 0, 0, 0.15);
+    }
+
+    .blog-card.wide {
+      grid-column: span 2;
+    }
+
+    .blog-card.tall .blog-img {
+      height: 360px;
+    }
+
+    .blog-card.small .blog-img {
+      height: 200px;
+    }
+
+    .blog-img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      transition: transform 0.45s;
+    }
+
+    .blog-card:hover .blog-img {
+      transform: scale(1.03);
+    }
+
+    .blog-content {
+      padding: 1.5rem;
+    }
+
+    .blog-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+      font-size: 0.8rem;
+      color: #6c6c6c;
+    }
+
+    .blog-category {
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .blog-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .excerpt {
+      color: #4a4a4a;
+      line-height: 1.4;
+    }
+
+    /* Weekly + Author */
+    .weekly-recipe, .author-story {
+      background: #faf8f3;
+      border-radius: 40px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .weekly-img, .author-img {
+      flex: 1;
+      min-width: 240px;
+      border-radius: 32px;
+      overflow: hidden;
+    }
+
+    .weekly-img img, .author-img img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+      border-radius: 32px;
+    }
+
+    .author-img img {
+      border-radius: 50%;
+      aspect-ratio: 1/1;
+      object-fit: cover;
+    }
+
+    .weekly-info, .author-text {
+      flex: 1.5;
+    }
+
+    /* Newsletter */
+    .newsletter {
+      background: linear-gradient(135deg, #eef5e5, #ffffff);
+      border-radius: 48px;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .news-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .news-group input {
+      padding: 1rem 1.5rem;
+      border-radius: 60px;
+      border: 1px solid #ddd;
+      width: 280px;
+    }
+
+    .news-group button {
+      background: var(--primary);
+      border: none;
+      padding: 0 2rem;
+      border-radius: 60px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .news-group button:hover {
+      background: var(--hover);
+    }
+
+    /* Instagram */
+    .insta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+
+    .insta-item {
+      overflow: hidden;
+      border-radius: 24px;
+      aspect-ratio: 1/1;
+    }
+
+    .insta-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s;
+    }
+
+    .insta-item:hover img {
+      transform: scale(1.1);
+    }
+
+    /* Footer */
+    footer {
+      background: #111;
+      color: #ccc;
+      padding: 3rem 2rem 2rem;
+      margin-top: 2rem;
+    }
+
+    .footer-content {
+      max-width: 1280px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+
+    .footer-col h4 {
+      color: white;
+      margin-bottom: 1rem;
+    }
+
+    .footer-col a, .footer-col p {
+      color: #aaa;
+      text-decoration: none;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 800px) {
+      .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .slide-content h2 {
+        font-size: 2.2rem;
+      }
+      .hero-section {
+        height: 650px;
+      }
+      .blog-card.wide {
+        grid-column: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header" id="mainHeader">
+  <div class="header-container">
+    <a href="#" class="logo">masonry<span>recipes</span></a>
+    <div class="nav-links">
+      <a href="#">Home</a> <a href="#">Recipes</a> <a href="#">Categories</a>
+      <a href="#">Blog</a> <a href="#">About</a> <a href="#">Contact</a>
+      <i class="fas fa-search search-icon" id="searchIcon"></i>
+    </div>
+  </div>
+</header>
+
+<!-- Hero Slider (all images working) -->
+<div class="hero-section">
+  <div class="slider" id="heroSlider">
+    <div class="slider-track" id="sliderTrack">
+      <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1600&h=900&fit=crop');">
+        <div class="slide-content"><h2>Fresh Vegetables</h2><p>Farm-to-table recipes bursting with flavor</p><a href="#" class="cta-btn">View Garden Recipes</a></div>
+      </div>
+      <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?w=1600&h=900&fit=crop');">
+        <div class="slide-content"><h2>Healthy Breakfast</h2><p>Energize your mornings</p><a href="#" class="cta-btn">Morning Inspo</a></div>
+      </div>
+      <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=1600&h=900&fit=crop');">
+        <div class="slide-content"><h2>Quick Dinner Recipes</h2><p>30-minute meals</p><a href="#" class="cta-btn">Cook Tonight</a></div>
+      </div>
+    </div>
+    <button class="slider-btn prev-btn" id="prevSlide"><i class="fas fa-chevron-left"></i></button>
+    <button class="slider-btn next-btn" id="nextSlide"><i class="fas fa-chevron-right"></i></button>
+    <div class="dots-container" id="dotsContainer"></div>
+  </div>
+</div>
+
+<!-- Trending Categories (all working) -->
+<div class="section-container">
+  <h2 class="section-title">Trending <span>Categories</span></h2>
+  <div class="categories-grid">
+    <div class="cat-card"><img class="circle-img" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop" alt="pasta"><h4>Italian</h4></div>
+    <div class="cat-card"><img class="circle-img" src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop" alt="asian"><h4>Asian</h4></div>
+    <div class="cat-card"><img class="circle-img" src="https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200&h=200&fit=crop" alt="dessert"><h4>Desserts</h4></div>
+    <div class="cat-card"><img class="circle-img" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&h=200&fit=crop" alt="vegan"><h4>Vegan</h4></div>
+    <div class="cat-card"><img class="circle-img" src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&h=200&fit=crop" alt="seafood"><h4>Seafood</h4></div>
+  </div>
+</div>
+
+<!-- Featured Recipes (3rd image = salmon, working) -->
+<div class="section-container">
+  <h2 class="section-title">Featured <span>Recipes</span></h2>
+  <div class="recipe-grid">
+    <div class="recipe-card"><img class="recipe-img" src="https://images.unsplash.com/photo-1546069901-d5bfd2cbfb1f?w=400&fit=crop" alt="bowl"><div class="recipe-info"><span class="recipe-category">BOWL</span><div class="recipe-title">Quinoa Harvest Bowl</div><p>Nutty & fresh</p></div></div>
+    <div class="recipe-card"><img class="recipe-img" src="https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&fit=crop" alt="pizza"><div class="recipe-info"><span class="recipe-category">PIZZA</span><div class="recipe-title">Margherita Perfection</div><p>Wood-fired style</p></div></div>
+    <div class="recipe-card"><img class="recipe-img" src="https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&fit=crop" alt="salmon"><div class="recipe-info"><span class="recipe-category">SEAFOOD</span><div class="recipe-title">Lemon Herb Salmon</div><p>Juicy & flaky</p></div></div>
+    <div class="recipe-card"><img class="recipe-img" src="https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=400&fit=crop" alt="pancake"><div class="recipe-info"><span class="recipe-category">BREAKFAST</span><div class="recipe-title">Fluffy Ricotta Pancakes</div><p>Cloud-like stacks</p></div></div>
+  </div>
+</div>
+
+<!-- Masonry Blog Grid (dessert image replaced with stable URL) -->
+<div class="section-container">
+  <h2 class="section-title">Latest from the <span>Blog</span></h2>
+  <div class="masonry-grid">
+    <div class="blog-card tall"><img class="blog-img" src="https://images.unsplash.com/photo-1586444248902-2f64eddc13df?w=500&fit=crop" alt="baking"><div class="blog-content"><div class="blog-meta"><span class="blog-category">BAKING</span><span>8 min read</span></div><div class="blog-title">Sourdough Starter Guide</div><div class="excerpt">Master rustic bread at home.</div></div></div>
+    <div class="blog-card wide"><img class="blog-img" src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=800&fit=crop" alt="mealprep"><div class="blog-content"><div class="blog-meta"><span class="blog-category">MEAL PREP</span><span>12 min read</span></div><div class="blog-title">5 Colorful Lunch Bowls</div><div class="excerpt">High protein, gluten-free ideas.</div></div></div>
+    <div class="blog-card small"><img class="blog-img" src="https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&fit=crop" alt="soup"><div class="blog-content"><div class="blog-meta"><span class="blog-category">SOUPS</span><span>4 min read</span></div><div class="blog-title">Cozy Pumpkin Soup</div><div class="excerpt">Creamy & vegan.</div></div></div>
+    <div class="blog-card"><img class="blog-img" src="https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=500&fit=crop" alt="coffee"><div class="blog-content"><div class="blog-meta"><span class="blog-category">DRINKS</span><span>3 min read</span></div><div class="blog-title">Dalgona Coffee</div><div class="excerpt">Viral 3‑ingredient recipe.</div></div></div>
+    <!-- FIXED: Dessert image - working URL -->
+    <div class="blog-card tall"><img class="blog-img" src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&fit=crop" alt="dessert"><div class="blog-content"><div class="blog-meta"><span class="blog-category">DESSERT</span><span>9 min read</span></div><div class="blog-title">No‑Bake Chocolate Torte</div><div class="excerpt">Rich & velvety.</div></div></div>
+  </div>
+</div>
+
+<!-- Most Saved Recipes (all working) -->
+<div class="section-container">
+  <h2 class="section-title">Most <span>Saved</span> Recipes</h2>
+  <div class="recipe-grid">
+    <div class="recipe-card"><img class="recipe-img" src="https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=400&fit=crop" alt="pasta"><div class="recipe-info"><span class="recipe-category">PASTA</span><div class="recipe-title">Creamy Mushroom Fettuccine</div><p>⭐ 4.9 (2k saves)</p></div></div>
+    <div class="recipe-card"><img class="recipe-img" src="https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=400&fit=crop" alt="chicken"><div class="recipe-info"><span class="recipe-category">CHICKEN</span><div class="recipe-title">Lemon Herb Chicken</div><p>⭐ 4.8 (1.8k saves)</p></div></div>
+    <div class="recipe-card"><img class="recipe-img" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&fit=crop" alt="burger"><div class="recipe-info"><span class="recipe-category">BURGER</span><div class="recipe-title">Smash Burger Special</div><p>⭐ 4.9 (2.3k saves)</p></div></div>
+    <div class="recipe-card"><img class="recipe-img" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&fit=crop" alt="salad"><div class="recipe-info"><span class="recipe-category">SALAD</span><div class="recipe-title">Kale Caesar</div><p>⭐ 4.7 (1.2k saves)</p></div></div>
+  </div>
+</div>
+
+<!-- Weekly Recipe (FIXED image) -->
+<div class="section-container">
+  <div class="weekly-recipe">
+    <div class="weekly-img"><img src="https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&fit=crop" alt="weekly risotto"></div>
+    <div class="weekly-info"><h3>🍴 Weekly Recipe: Pumpkin & Sage Risotto</h3><p>Cozy, creamy risotto with roasted pumpkin, fresh sage, and parmesan.</p><a href="#" class="cta-btn" style="margin-top: 1rem;">Get Recipe</a></div>
+  </div>
+</div>
+
+<!-- Author Story -->
+<div class="section-container">
+  <div class="author-story">
+    <div class="author-img"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=300&fit=crop" alt="author"></div>
+    <div class="author-text"><h3>Meet Isabella Rossi</h3><p>Chef, food stylist & the soul behind Masonry Recipes. My mission is to bring bold, seasonal flavors into your kitchen.</p><i class="fas fa-heart" style="color: var(--primary);"></i> <span> Over 2 million home cooks inspired</span></div>
+  </div>
+</div>
+
+<!-- Newsletter -->
+<div class="section-container">
+  <div class="newsletter">
+    <h3>Subscribe to the <span style="color:var(--primary)">flavor letter</span></h3>
+    <p>Get weekly recipes, kitchen tips, and seasonal menus.</p>
+    <div class="news-group"><input type="email" placeholder="Your email address" id="newsEmail"><button id="newsBtn">Subscribe →</button></div>
+  </div>
+</div>
+
+<!-- Instagram Gallery (all working) -->
+<div class="section-container">
+  <h2 class="section-title">As seen on <span>Instagram</span> 📷</h2>
+  <div class="insta-grid">
+    <div class="insta-item"><img src="https://images.unsplash.com/photo-1557844352-761f2565b576?w=300&fit=crop" alt="insta1"></div>
+    <div class="insta-item"><img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=300&fit=crop" alt="insta2"></div>
+    <div class="insta-item"><img src="https://images.unsplash.com/photo-1546069901-d5bfd2cbfb1f?w=300&fit=crop" alt="insta3"></div>
+    <div class="insta-item"><img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=300&fit=crop" alt="insta4"></div>
+    <div class="insta-item"><img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=300&fit=crop" alt="insta5"></div>
+    <div class="insta-item"><img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?w=300&fit=crop" alt="insta6"></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-content">
+    <div class="footer-col"><h4>Masonry Recipes</h4><p>Modern food blog for the passionate home cook.</p></div>
+    <div class="footer-col"><h4>Explore</h4><a href="#">Recipes</a><br><a href="#">About</a><br><a href="#">Contact</a></div>
+    <div class="footer-col"><h4>Follow</h4><a href="#"><i class="fab fa-instagram"></i> Instagram</a><br><a href="#"><i class="fab fa-pinterest"></i> Pinterest</a></div>
+    <div class="footer-col"><p>© 2026 Masonry Recipes — all rights reserved.</p></div>
+  </div>
+</footer>
+
+<script>
+  // Hero Slider with autoplay, drag, arrows, dots
+  const track = document.getElementById('sliderTrack');
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const prevBtn = document.getElementById('prevSlide');
+  const nextBtn = document.getElementById('nextSlide');
+  const dotsContainer = document.getElementById('dotsContainer');
+  let currentIndex = 0;
+  let autoplayInterval;
+  let isDragging = false;
+  let startPos = 0;
+  let currentTranslate = 0;
+  let startTranslate = 0;
+
+  function updateSlider() {
+    const slideWidth = slides[0].clientWidth;
+    track.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+    updateDots();
+  }
+
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach((dot, idx) => {
+      dot.classList.toggle('active', idx === currentIndex);
+    });
+  }
+
+  function createDots() {
+    dotsContainer.innerHTML = '';
+    slides.forEach((_, idx) => {
+      const dot = document.createElement('div');
+      dot.classList.add('dot');
+      if (idx === currentIndex) dot.classList.add('active');
+      dot.addEventListener('click', () => { stopAutoplay(); currentIndex = idx; updateSlider(); startAutoplay(); });
+      dotsContainer.appendChild(dot);
+    });
+  }
+
+  function nextSlide() { currentIndex = (currentIndex + 1) % slides.length; updateSlider(); }
+  function prevSlide() { currentIndex = (currentIndex - 1 + slides.length) % slides.length; updateSlider(); }
+  function startAutoplay() { if (autoplayInterval) clearInterval(autoplayInterval); autoplayInterval = setInterval(nextSlide, 5000); }
+  function stopAutoplay() { if (autoplayInterval) clearInterval(autoplayInterval); }
+
+  function dragStart(e) {
+    e.preventDefault();
+    isDragging = true;
+    stopAutoplay();
+    startPos = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+    const style = window.getComputedStyle(track);
+    const transform = style.transform;
+    startTranslate = transform === 'none' ? 0 : parseFloat(transform.match(/matrix.*\((.+)\)/)[1].split(', ')[4]);
+    track.style.transition = 'none';
+  }
+
+  function dragMove(e) {
+    if (!isDragging) return;
+    const currentPos = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+    const diff = currentPos - startPos;
+    let shift = startTranslate + diff;
+    const maxShift = -(slides.length - 1) * slides[0].clientWidth;
+    shift = Math.min(0, Math.max(maxShift, shift));
+    track.style.transform = `translateX(${shift}px)`;
+    currentTranslate = shift;
+  }
+
+  function dragEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    const slideWidth = slides[0].clientWidth;
+    const movedPercent = (currentTranslate - startTranslate) / slideWidth;
+    if (Math.abs(movedPercent) > 0.2) movedPercent < 0 ? nextSlide() : prevSlide();
+    else updateSlider();
+    track.style.transition = 'transform 0.5s ease-out';
+    startAutoplay();
+  }
+
+  function attachDragEvents() {
+    track.addEventListener('mousedown', dragStart);
+    window.addEventListener('mousemove', dragMove);
+    window.addEventListener('mouseup', dragEnd);
+    track.addEventListener('touchstart', dragStart);
+    window.addEventListener('touchmove', dragMove);
+    window.addEventListener('touchend', dragEnd);
+  }
+
+  window.addEventListener('resize', updateSlider);
+  prevBtn.addEventListener('click', () => { stopAutoplay(); prevSlide(); startAutoplay(); });
+  nextBtn.addEventListener('click', () => { stopAutoplay(); nextSlide(); startAutoplay(); });
+  createDots();
+  updateSlider();
+  attachDragEvents();
+  startAutoplay();
+
+  // Sticky header
+  const header = document.getElementById('mainHeader');
+  window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
+  document.getElementById('searchIcon').addEventListener('click', () => alert('🔍 Search recipes — coming soon!'));
+  document.getElementById('newsBtn').addEventListener('click', () => {
+    const email = document.getElementById('newsEmail').value;
+    alert(email ? `✨ Thanks ${email}! You'll receive delicious updates.` : 'Please enter a valid email.');
+  });
+</script>
+</body>
+</html>
